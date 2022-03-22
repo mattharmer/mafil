@@ -1,3 +1,40 @@
+# Mafil - Movement Autonomos Feedback Image Learning
+A Robot Car. More Info Soon.
+
+Write Ubuntu Server 20.04 Arm64 for raspberry PI to SD Card
+Write USB Boot to a 2nd SD Card.
+	
+Boot and Login
+	connect eth cable.
+	Power on PI.
+	the user pass is ubuntu, required to change.
+Updates
+
+	Update all
+	$ sudo apt update && sudo apt upgrade
+GUI
+	$ sudo apt install tasksel
+	
+	List all the desktops that can be installed by Tasksel.
+	$ sudo tasksel --list-tasks
+	
+	Install Ubuntu Desktop Minimal. Could try minimal languages later).
+	$ sudo tasksel install ubuntu-desktop-minimal
+	
+	Make sure system boots to correct graphical target.
+	$ sudo systemctl set-default graphical.target
+	$ sudo reboot
+SSL
+	Make sure SSH is installed.
+	$ sudo apt install ssh
+	
+	Get the current IP address.
+	$ ip a
+GIT REPO
+	$ https://github.com/mattharmer/mafil.git
+
+
+
 # TensorFlow Lite Python object detection example with Raspberry Pi
 
 This example uses [TensorFlow Lite](https://tensorflow.org/lite) with Python on a Raspberry Pi to perform real-time object detection using images streamed from the Pi Camera. It draws a bounding box around each detected object in the camera preview (when the object score is above a given threshold).
