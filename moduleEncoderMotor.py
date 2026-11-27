@@ -15,7 +15,7 @@ Lir = 16
 Rir = 4
 
 # Declare User Variables
-encoderAmount = 189 * 3# * ticks by two to count all ticks, change later when using sway.
+encoderAmount = 189 * 3# * ticks by two to count all ticks.
 motorDirection = 1
 motorSpeedLeft = 40
 motorSpeedRight = 40
@@ -29,6 +29,7 @@ GPIO.setup(In3,GPIO.OUT)
 GPIO.setup(In4,GPIO.OUT)
 GPIO.setup(Lir,GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(Rir,GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
 # Declare Ena & Enb Pins as PWM and set Frequency
 pwmEna = GPIO.PWM(Ena, 100)
 pwmEnb = GPIO.PWM(Enb, 100)
@@ -66,7 +67,7 @@ def irLcallback(channel):
 	print("Tick irL", irLCount)
 
 	# Check if Tick Count Reached
-	if irLCount >= encoderAmount:
+	if (irLCount) or (irRCount) >= encoderAmount:
 		sleep(0.01)
 		pwmEna.ChangeDutyCycle(0);
 		pwmEnb.ChangeDutyCycle(0);
@@ -123,7 +124,7 @@ def irRcallback(channel):
 
 # Listen for Event Detect
 GPIO.add_event_detect(Lir, GPIO.BOTH, callback=irLcallback)
-GPIO.add_event_detect(Rir, GPIO.BOTH, callback=irRcallback) # Only counting one detector ATM. Check again when introduce sway detect.
+GPIO.add_event_detect(Rir, GPIO.BOTH, callback=irRcallback)
 
 # Sleep until Key Press.
 try:

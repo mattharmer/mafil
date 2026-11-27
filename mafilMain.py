@@ -1,7 +1,5 @@
 # Runs all the Classes and Functions in a specific order
 
-# Run mafilMain
-
 # Start Path Movement
 
 # Start Sonar Detection

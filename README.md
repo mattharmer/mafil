@@ -1,129 +1,52 @@
-# Mafil - Movement Autonomos Feedback Image Learning
-A Robot Car. More Info Soon.
+# MAFIL
 
-Write Ubuntu Server 20.04 Arm64 for raspberry PI to SD Card
-Write USB Boot to a 2nd SD Card.
-	
-Boot and Login
-	connect eth cable.
-	Power on PI.
-	the user pass is ubuntu, required to change.
-Updates
+**MAFIL** (Movement Autonomous Feedback Image Learning) is a small robot-car build: a Raspberry Pi, motors and sensors, a camera, and on-device object detection.
 
-	Update all
-	$ sudo apt update && sudo apt upgrade
-GUI
-	$ sudo apt install tasksel
-	
-	List all the desktops that can be installed by Tasksel.
-	$ sudo tasksel --list-tasks
-	
-	Install Ubuntu Desktop Minimal. Could try minimal languages later).
-	$ sudo tasksel install ubuntu-desktop-minimal
-	
-	Make sure system boots to correct graphical target.
-	$ sudo systemctl set-default graphical.target
-	$ sudo reboot
-SSL
-	Make sure SSH is installed.
-	$ sudo apt install ssh
-	
-	Get the current IP address.
-	$ ip a
-GIT REPO
-	$ https://github.com/mattharmer/mafil.git
+**Matt Harmer** · Lake Macquarie, NSW · [LinkedIn](https://www.linkedin.com/in/matt-harmer-me/) · [GitHub](https://github.com/mattharmer/mafil)
 
+---
 
+## Problem
 
-# TensorFlow Lite Python object detection example with Raspberry Pi
+I wanted a vehicle that could move under program control, notice something in front of it, and change what it did next — stop, record, or start a simple audio menu if a person was detected — rather than only being driven by a remote.
 
-This example uses [TensorFlow Lite](https://tensorflow.org/lite) with Python on a Raspberry Pi to perform real-time object detection using images streamed from the Pi Camera. It draws a bounding box around each detected object in the camera preview (when the object score is above a given threshold).
+## What I built
 
-At the end of this page, there are extra steps to accelerate the example using the Coral USB Accelerator to increase inference speed.
+On a Raspberry Pi (the build notes are for Raspberry Pi OS), I wrote modular Python for:
 
-## Set up your hardware
+- Motor and encoder control, including travel over a set encoder count
+- A sonar-triggered pause in the path so the camera can look at an object
+- TensorFlow Lite object detection with the EfficientDet-Lite0 model, and a path for a Coral Edge TPU model if the accelerator is attached
+- Recording while a person is in view, and a short audio menu when a known person is detected
+- Supporting modules for audio play/record, a stepper, and saving images
 
-Before you begin, you need to
-[set up your Raspberry Pi](https://projects.raspberrypi.org/en/projects/raspberry-pi-setting-up)
-with Raspberry Pi OS (preferably updated to Buster).
+A Fritzing schematic, a parts list, written wiring notes, and a Blender model of the robot are in `hardware/`.
 
-You also need to
-[connect and configure the Pi Camera](https://www.raspberrypi.org/documentation/configuration/camera.md)
-if you use the Pi Camera. This code also works with USB camera connect to the
-Raspberry Pi.
+![Blender model of the MAFIL chassis](images/mafil-blender-model.png)
 
-And to see the results from the camera, you need a monitor connected to the
-Raspberry Pi. It's okay if you're using SSH to access the Pi shell (you don't
-need to use a keyboard connected to the Pi)—you only need a monitor attached to
-the Pi to see the camera stream.
+*Blender model of the MAFIL chassis*
 
-## Download the example files
+There is also an early Python voice-assistant experiment in `assistant/`. It follows published tutorials (linked in that folder's README) and is not the main robot codebase. Run it with a local `.env` file; a template is in `assistant/.env.example`. **Do not commit a real `.env`.**
 
-First, clone this Git repo onto your Raspberry Pi like this:
+## What's in this repository
 
-```
-git clone https://github.com/tensorflow/examples --depth 1
-```
+| Path | What's there |
+| --- | --- |
+| `mafilMain.py` and `module*.py` | Robot workspace: movement, detection, audio, motors |
+| `efficientdet_lite0.tflite` | Object-detection model used on the Pi |
+| `efficientdet_lite0_edgetpu.tflite` | Edge TPU variant, if a Coral accelerator is attached |
+| `hardware/` | Blender model, Fritzing schematic, parts list and build notes |
+| `images/` | Blender viewport render of the chassis |
+| `assistant/` | Early voice-assistant experiment (environment variables only; no secrets in the repo) |
 
-Then use our script to install a couple Python packages, and download the
-EfficientDet-Lite model:
+I do not have photographs of the built robot to hand. The Blender model is the visual record of the chassis for now.
 
-```
-cd examples/lite/examples/object_detection/raspberry_pi
+## What this shows
 
-# The script install the required dependencies and download the TFLite models.
-sh setup.sh
-```
+- I will take a system made of parts — motors, sensors, a camera, a model — and keep going until the pieces talk to each other
+- I document wiring, modules and how to run the stack, not only the happy-path demo
+- For a client-manager role, this is practical curiosity: when something in the loop is wrong, I want to understand why, and I will leave a record someone else can follow
 
-In this project, all you need from the TensorFlow Lite API is the `Interpreter`
-class. So instead of installing the large `tensorflow` package, we're using the
-much smaller `tflite_runtime` package. The setup scripts automatically install
-the TensorFlow Lite runtime.
+## Licence
 
-## Run the example
-
-```
-python3 detect.py \
-  --model efficientdet_lite0.tflite
-```
-
-You should see the camera feed appear on the monitor attached to your Raspberry
-Pi. Put some objects in front of the camera, like a coffee mug or keyboard, and
-you'll see boxes drawn around those that the model recognizes, including the
-label and score for each. It also prints the number of frames per second (FPS)
-at the top-left corner of the screen. As the pipeline contains some processes
-other than model inference, including visualizing the detection results, you can
-expect a higher FPS if your inference pipeline runs in headless mode without
-visualization.
-
-For more information about executing inferences with TensorFlow Lite, read
-[TensorFlow Lite inference](https://www.tensorflow.org/lite/guide/inference).
-
-## Speed up model inference (optional)
-
-If you want to significantly speed up the inference time, you can attach an
-[Coral USB Accelerator](https://coral.withgoogle.com/products/accelerator)—a USB
-accessory that adds the
-[Edge TPU ML accelerator](https://coral.withgoogle.com/docs/edgetpu/faq/) to any
-Linux-based system.
-
-If you have a Coral USB Accelerator, you can run the sample with it enabled:
-
-1.  First, be sure you have completed the
-    [USB Accelerator setup instructions](https://coral.withgoogle.com/docs/accelerator/get-started/).
-
-2.  Run the object detection script using the EdgeTPU TFLite model and enable
-    the EdgeTPU option. Be noted that the EdgeTPU requires a specific TFLite
-    model that is different from the one used above.
-
-```
-python3 detect.py \
-  --enableEdgeTPU
-  --model efficientdet_lite0_edgetpu.tflite
-```
-
-You should see significantly faster inference speeds.
-
-For more information about creating and running TensorFlow Lite models with
-Coral devices, read
-[TensorFlow models on the Edge TPU](https://coral.withgoogle.com/docs/edgetpu/models-intro/).
+MIT. See `LICENSE`.
